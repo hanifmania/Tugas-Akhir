@@ -1,0 +1,60 @@
+# Names (vehicle, topics and frames)
+vehicle_name: "hug"
+dynamics/hug/odom_topic_name: "/hug/ros_odom_to_pat"
+dynamics/hug/altitude_range_topic_name: "/hug/range"
+dynamics/hug/frame_id: "hug_dynamics"
+dynamics/hug/world_frame_id: "world"
+dynamics/hug/force_topic: "/cola2_control/merged_body_force_req"
+
+# If this parameter is set, the input of the model is force
+dynamics/hug/use_force_topic: true
+
+# Initial state in meters and rads [X, Y, Z, Roll, Pitch, Yaw]
+dynamics/hug/initial_pose: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+dynamics/hug/initial_velocity: [0, 0, 0, 0, 0, 0]
+
+# DYNAMICS
+dynamics/hug/period: 0.05
+dynamics/hug/density: 1030.0
+dynamics/hug/mass: 56
+dynamics/hug/buoyancy: 57.5
+dynamics/hug/gravity_center: [0.0, 0.0, 0.02]
+dynamics/hug/g: 9.80665
+dynamics/hug/radius: 0.115
+dynamics/hug/tensor: [0.38545, 0.0, 0.0, 0.0, 11.28606, 0.0, 0.0, 0.0, 11.28606]
+dynamics/hug/damping: [-9.9239, 0.0, 0.0, -1.0, 0.0, 0.0]
+dynamics/hug/quadratic_damping: [-10.1728, -259.8366, -259.8366, -5.0, -53.2837, -53.2837]
+sea_bottom_depth: 40.0
+
+# Thrusters info (not used if use_force_topic is set to true)
+dynamics/hug/number_of_thrusters: 3
+dynamics/hug/thrusters_topic: "/cola2_control/sim_thrusters_data"
+# Forward and backward thrusters coef
+dynamics/hug/ctf: 0.00004861111
+dynamics/hug/ctb: 0.00004861111
+dynamics/hug/max_thrusters_rpm: 1200
+dynamics/hug/dzv: 0.05
+dynamics/hug/dv: 0.05
+dynamics/hug/dh: 0.40
+dynamics/hug/thrusters_matrix: [[0.0, 1.0, 1.0],[0.0, 0.0, 0.0],[1.0, 0.0, 0.0],[0.0, 0.0, 0.0],[0.0, 0.0, 0.0],[0.0, -0.16, 0.16]]
+
+# Fins info (not used if use_force_topic is set to true)
+dynamics/hug/number_of_fins: 2
+dynamics/hug/fins_topic: "/cola2_control/sim_fins_data"
+
+dynamics/hug/a_fins: 0.0094
+# Parameters for NACA 0015 airfoil
+dynamics/hug/k_cd_fins: 1.8
+dynamics/hug/k_cl_fins: 1.1
+# 20 degrees = pi / 9 = 0.3491
+dynamics/hug/max_fins_angle: 0.3941
+
+# Collisions from UWSim. Let it empty if not available
+dynamics/hug/uwsim_contact_sensor: ""
+
+# Water currents simulation
+dynamics/current_mean: [-0.3, 0.1, 0.0]
+dynamics/current_sigma: [0.001, 0.001, 0.001]
+dynamics/current_min: [-1.0, -1.0, -1.0]
+dynamics/current_max: [1.0, 1.0, 1.0]
+dynamics/current_enabled: False

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="hug">
+  <link name="base_hug">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://cola2_hug/data/robot/hug/hug.osg" />
+      </geometry>
+    </visual>
+  </link>
+</robot>
