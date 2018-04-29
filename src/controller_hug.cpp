@@ -52,7 +52,6 @@ public:
 
         _auv_controller->_thruster_allocator.setParams( config.max_force_thruster_forward,
                                                         config.max_force_thruster_backward,
-                                                        config.thruster_distance_yaw,
                                                         tcm);
 
         _auv_controller->_fin_allocator.setParams( config.max_fin_force,
@@ -66,13 +65,15 @@ public:
 
         std::vector< std::string > keys = {"kp", "ti", "td", "i_limit", "fff"};
 
+        /*
         std::vector< std::map< std::string, double > > d_p_params;
         std::vector< double > dpvalues1 = {config.d_p_kp, config.d_p_ti, config.d_p_td, config.d_p_i_limit, config.d_p_fff};
         _auv_controller->addPIDParamToVector( keys, dpvalues1, d_p_params );
-
+        */
 
         std::vector< std::map< std::string, double > > f_params;
-        std::vector< double > fvalues1 = {config.f_roll_kp, config.f_roll_ti, config.f_roll_td, config.f_roll_i_limit, config.f_roll_fff};
+        //std::vector< double > fvalues1 = {config.f_roll_kp, config.f_roll_ti, config.f_roll_td, config.f_roll_i_limit, config.f_roll_fff};
+        std::vector< double > fvalues1 = {config.f_yaw_kp, config.f_yaw_ti, config.f_yaw_td, config.f_yaw_i_limit, config.f_yaw_fff};
         _auv_controller->addPIDParamToVector( keys, fvalues1, f_params );
         std::vector< double > fvalues2 = {config.f_pitch_kp, config.f_pitch_ti, config.f_pitch_td, config.f_pitch_i_limit, config.f_pitch_fff};
         _auv_controller->addPIDParamToVector( keys, fvalues2, f_params );
@@ -137,7 +138,7 @@ public:
         _auv_controller->setMaxWrench( max_wrench );
 
         // Change Params in C++ Class
-        _auv_controller->setControllerParams( d_p_params, f_params, p_params, t_params, poly_params, poly_percentatge );
+        _auv_controller->setControllerParams( /*d_p_params,*/ f_params, p_params, t_params, poly_params, poly_percentatge );
 
         std::cout << "config.enable_thrusters: " << config.enable_thrusters << std::endl;
         if(config.enable_thrusters) {
@@ -175,7 +176,7 @@ main( int argc, char **argv )
 
     // Init HUG controller
     HUGController *auv_ctrl_ptr;
-    auv_ctrl_ptr = new HUGController( period, 6, 3, 2 );  // period, number of DOF's, number of thrusters, number of fins,
+    auv_ctrl_ptr = new HUGController( period, 6, 2, 2 );  // period, number of DOF's, number of thrusters, number of fins,
 
     // Init ROS node
     HUGROSController hug_ros_controller( ros::this_node::getName(), "/hug" );

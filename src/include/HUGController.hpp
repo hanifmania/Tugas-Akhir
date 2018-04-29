@@ -27,7 +27,7 @@ public:
     HUGController( double period,
                        unsigned int n_dof,
                        unsigned int n_thrusters,
-                       unsigned int n_fins = 0 ):
+                       unsigned int n_fins):
         IAUVController( period, n_dof, n_thrusters, n_fins ),
         _thruster_allocator( n_thrusters ),
         _fin_allocator( n_fins ),
@@ -51,10 +51,11 @@ public:
     void
     initFinsControllers()
     {
-        _d_to_p_controller = new Pid( "depth_to_pitch" );
+        //_d_to_p_controller = new Pid( "depth_to_pitch" );
 
-        _f_roll = new Pid( "roll_to_force" );
+        //_f_roll = new Pid( "roll_to_force" );
         _f_pitch = new Pid( "pitch_to_force" );
+        _f_yaw = new Pid( "yaw_to_force" );
     }
 
     void
@@ -125,15 +126,16 @@ public:
     }
 
     void
-    setControllerParams( const std::vector< std::map< std::string, double > > d_p_params,
+    setControllerParams( //const std::vector< std::map< std::string, double > > d_p_params,
                          const std::vector< std::map< std::string, double > > f_params,
                          const std::vector< std::map< std::string, double > > p_params,
                          const std::vector< std::map< std::string, double > > t_params,
                          const std::vector< std::map< std::string, double > > poly_params,
                          std::vector< double > poly_percentatge)
     {
-        _d_to_p_controller->setParameters( d_p_params.at(0) );
-        _f_roll->setParameters( f_params.at(0) );
+        //_d_to_p_controller->setParameters( d_p_params.at(0) );
+        //_f_roll->setParameters( f_params.at(0) );
+        _f_yaw->setParameters( f_params.at(0) );
         _f_pitch->setParameters( f_params.at(1) );
 
         _pose_controller.setControllerParams( p_params );
@@ -145,8 +147,9 @@ public:
         _old_twist = { 0, 0, 0, 0, 0, 0 };
         _poly_percentatge = poly_percentatge;
 
-        _d_to_p_controller->reset();
-        _f_roll->reset();
+        //_d_to_p_controller->reset();
+        //_f_roll->reset();
+        _f_yaw->reset();
         _f_pitch->reset();
         _pose_controller.reset();
         _twist_controller.reset();
@@ -188,7 +191,7 @@ public:
 
             // Takes values between -pi and pi
             double desired_pitch;
-
+            /*
             // If pitch pose axis is disabled -> 'automatic' pitch mode (2 cases: operating with velocity (PITCH MODE) or with 'automatic' pose (DEPTH MODE))
             if ( pose_axis_values[4] ) {
 
@@ -245,9 +248,9 @@ public:
                     // PID depth -> pitch ( taking in account the depth )
                     // Applying an offset to correct the buoyancy
                     float pitch_offset = 0.0;
-                    /*if ( ( ( ( pose_values[2] + 1.5 ) > _pose_feedback[2] ) and ( ( pose_values[2] - 1.5 ) < _pose_feedback[2] ) ) or ( pose_values[2] > _pose_feedback[2] ) )  {
-                        pitch_offset = - atanf( fabs( _twist_feedback[2] ) / _twist_feedback[0] );
-                    }*/
+                    //if ( ( ( ( pose_values[2] + 1.5 ) > _pose_feedback[2] ) and ( ( pose_values[2] - 1.5 ) < _pose_feedback[2] ) ) or ( pose_values[2] > _pose_feedback[2] ) )  {
+                    //    pitch_offset = - atanf( fabs( _twist_feedback[2] ) / _twist_feedback[0] );
+                    //}
                     desired_pitch = d * (3.14159265359 / 2) * ( -_d_to_p_controller->compute( current_time, pose_values[2], _pose_feedback[2] ) + pitch_offset );
 
                     // Compute vertical thruster correction coeficients
@@ -322,18 +325,22 @@ public:
 
                 // std::cout << "XXXXXXXXXXXXXXXXXXXX DIRECT PITCH XXXXXXXXXXXXXXXXXXXX \n\n";
             }
-
+            */
             // PIDs: ( roll -> force ) and ( pitch -> force )
-            fins_values[3] = _saturateValue( _f_roll->compute(current_time, pose_values[3], _pose_feedback[3]) * _force_factor.at(3), _max_wrench.at(3) );
-            fins_values[4] = _saturateValue( _f_pitch->compute(current_time, desired_pitch, _pose_feedback[4]) * _force_factor.at(4), _max_wrench.at(4) );
+            //fins_values[3] = _saturateValue( _f_roll->compute(current_time, pose_values[3], _pose_feedback[3]) * _force_factor.at(3), _max_wrench.at(3) );
+            fins_values[5] = _saturateValue( _f_yaw->compute(current_time, pose_values[5], _pose_feedback[5]) * _force_factor.at(5), _max_wrench.at(5) );
+            //fins_values[4] = _saturateValue( _f_pitch->compute(current_time, desired_pitch, _pose_feedback[4]) * _force_factor.at(4), _max_wrench.at(4) );
+            fins_values[4] = _saturateValue( _f_pitch->compute(current_time, pose_values[4], _pose_feedback[4]) * _force_factor.at(4), _max_wrench.at(4) );
         }
         else {
             // Set roll and pitch desired torque to 0 due to fins are disabled
-            fins_values[3] = 0.0;
+            //fins_values[3] = 0.0;
+            fins_values[5] = 0.0;
             fins_values[4] = 0.0;
         }
         // Disable the roll and pitch axis for the twist controller (is not able to control this DOFs)
-        pose_axis_values[3] = true;
+        //pose_axis_values[3] = true;
+        pose_axis_values[5] = true;
         pose_axis_values[4] = true;
 
         // Set the modified axis and values to the pose requester
@@ -341,7 +348,8 @@ public:
         desired_pose.setDisabledAxis(pose_axis_values);
 
         // Enable the roll and pitch axis in the fins requester             TODO: take the input values
-        fins_axis[3] = false;
+        //fins_axis[3] = false;
+        fins_axis[5] = false;
         fins_axis[4] = false;
 
         // Set the computed axis and values to the fins requester
@@ -403,8 +411,8 @@ public:
             Request wrench_req( desired_twist );
 
             // Apply a non symmetric ramp to the twist input
-            std::vector< double > twist_step = { 0.1, 0, 0.0, 0.0, 0.00, 0.02 };
-            std::vector< bool > apply_step = {true, false, false, false, false, true};
+            std::vector< double > twist_step = { 0.1, 0, 0.0, 0.0, 0.02, 0.00 };
+            std::vector< bool > apply_step = {true, false, false, false, true, false};
             std::vector< double > des_twist = desired_twist.getValues();
             for ( unsigned int i = 0; i < 6; i++ ) {
                 if ( apply_step[i] ) {
@@ -474,7 +482,7 @@ public:
 
         // Compute fin setpoints
         //_fin_setpoints = _fin_allocator.calibration( fins_setpoints );
-        _fin_setpoints = _fin_allocator.compute( fins_wrench, _thruster_setpoints, _twist_feedback );
+        //_fin_setpoints = _fin_allocator.compute( fins_wrench, _thruster_setpoints, _twist_feedback );
     }
 
 
@@ -580,10 +588,11 @@ private:
     unsigned int _n_thrusters;
 
     // Depth to pitch PID controller
-    Pid *_d_to_p_controller;
+    //Pid *_d_to_p_controller;
 
     // Pitch PID controller
-    Pid *_f_roll;
+    //Pid *_f_roll;
+    Pid *_f_yaw;
     Pid *_f_pitch;
 
     // Pose PID controller

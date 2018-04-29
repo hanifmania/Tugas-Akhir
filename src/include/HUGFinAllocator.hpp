@@ -37,7 +37,7 @@ public:
 			//_force_to_fins_ratio = 10;
 
 			Eigen::MatrixXd fcm( 6, _n_fins );
-			fcm << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0;
+			fcm << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.65, 0.65, 0.0;
 			std::cout << "fcm: \n" << fcm << "\n";
 
 			// Compute pseudoinverse
@@ -120,7 +120,8 @@ public:
         mergeRollPitch( roll, pitch );
         wrench_req[3] = roll;
         wrench_req[4] = pitch;*/
-        mergeRollPitch( wrench_req[3], wrench_req[4] );
+        //mergeRollPitch( wrench_req[3], wrench_req[4] );
+        mergeRollPitch( wrench_req[5], wrench_req[4] );
         //std::cout << "wrench:\n" << wrench_req << "\n";
 
         // Multiply wrench by fin allocation matrix
@@ -129,10 +130,14 @@ public:
         //std::cout << "force_per_fin: \n" << force_per_fin << "\n";
 
         // Get the setpoints of the horizontal thrusters                                    TODO: do it with a matrix in the .yaml
-        Eigen::VectorXd thruster_setpoint( 3 );
+        /* Eigen::VectorXd thruster_setpoint( 3 );
         thruster_setpoint[1] = th_set[1]; //right_th
         thruster_setpoint[0] = th_set[2];  //left_th
-        thruster_setpoint[2] = th_set[0];
+        thruster_setpoint[2] = th_set[0]; */
+
+        Eigen::VectorXd thruster_setpoint( 2 );
+        thruster_setpoint[1] = th_set[1]; //right_th
+        thruster_setpoint[0] = th_set[0];  //left_th
 
         std::vector<double> twist ( 6 );
         twist[0] = twist_feedback[0];

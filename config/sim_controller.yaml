@@ -2,18 +2,25 @@
 controller/enable_thrusters: False
 
 # DEPTH TO PITCH PID CONTROLLER
-controller/d_p_kp: 0.0
-controller/d_p_ti: 0.0
-controller/d_p_td: 0.0
-controller/d_p_limit: 0.0
-controller/d_p_fff: 0.0
+# controller/d_p_kp: 0.0
+# controller/d_p_ti: 0.0
+# controller/d_p_td: 0.0
+# controller/d_p_limit: 0.0
+# controller/d_p_fff: 0.0
 
 # ROLL PID CONTROLLER
-controller/f_roll_kp: 0.0
-controller/f_roll_ti: 0.0
-controller/f_roll_td: 0.0
-controller/f_roll_i_limit: 0.0
-controller/f_roll_fff: 0.0
+# controller/f_roll_kp: 0.0
+# controller/f_roll_ti: 0.0
+# controller/f_roll_td: 0.0
+# controller/f_roll_i_limit: 0.0
+# controller/f_roll_fff: 0.0
+
+# YAW PID CONTROLLER
+controller/f_yaw_kp: 0.0
+controller/f_yaw_ti: 0.0
+controller/f_yaw_td: 0.0
+controller/f_yaw_i_limit: 0.0
+controller/f_yaw_fff: 0.0
 
 # PITCH PID CONTROLLER
 controller/f_pitch_kp: 0.0
@@ -156,11 +163,12 @@ controller/poly_yaw_percentatge: 0.5
 # updated
 /controller/max_force_thruster_forward: 70.0
 /controller/max_force_thruster_backward: 30.0
-/controller/thruster_distance_yaw: 0.16
+
 
 # Thruster control matrix. This matrix specifies how each thruster contributes
 # to the force or torque generated in each axis of the robot
-/controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+# /controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+/controller/TCM: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 # FIN ALLOCATOR
 /controller/max_fin_force: 26.0
@@ -171,5 +179,6 @@ controller/poly_yaw_percentatge: 0.5
 
 /controller/force_to_fins_ratio: 13.0
 
-/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
+# /controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
+/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.65, 0.65, 0.0]
 /controller/fin_poly: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0]

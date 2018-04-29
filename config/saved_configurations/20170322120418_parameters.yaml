@@ -15,7 +15,8 @@
 /dynamics/hug/buoyancy: 57.5
 /dynamics/hug/use_force_topic: True
 /dynamics/hug/tensor: [0.38545, 0.0, 0.0, 0.0, 11.28606, 0.0, 0.0, 0.0, 11.28606]
-/dynamics/hug/thrusters_matrix: [[0.0, 1.0, 1.0], [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, -0.16, 0.16]]
+# /dynamics/hug/thrusters_matrix: [[0.0, 1.0, 1.0], [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, -0.16, 0.16]]
+/dynamics/hug/thrusters_matrix: [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
 /dynamics/hug/density: 1030.0
 /dynamics/hug/thrusters_topic: '/cola2_control/sim_thrusters_data'
 /dynamics/hug/quadratic_damping: [-10.1728, -259.8366, -259.8366, -5.0, -53.2837, -53.2837]
@@ -134,12 +135,11 @@
 /controller/poly_heave_C: 259.8366
 /controller/poly_heave_B: 0.0
 /controller/poly_heave_A: 0.0
-/controller/d_p_ti: 0.0
-/controller/d_p_td: 0.0
+# /controller/d_p_ti: 0.0
+# /controller/d_p_td: 0.0
 /controller/t_yaw_kp: 0.5
 /controller/t_heave_fff: 0.26
 /controller/max_wrench_Pitch: 17.15
-/controller/thruster_distance_yaw: 0.16
 /controller/f_pitch_kp: 0.0
 /controller/p_sway_fff: 0.0
 /controller/t_yaw_fff: 0.0
@@ -165,8 +165,8 @@
 /controller/poly_pitch_B: 0.0
 /controller/poly_pitch_C: 0.0
 /controller/max_force_thruster_backward: 30.0
-/controller/d_p_fff: 0.0
-/controller/d_p_i_limit: 0.0
+# /controller/d_p_fff: 0.0
+# /controller/d_p_i_limit: 0.0
 /controller/poly_surge_A: 0.0
 /controller/poly_surge_B: 9.9239
 /controller/poly_surge_C: 10.1728
@@ -178,10 +178,11 @@
 /controller/t_roll_td: 0.0
 /controller/max_fin_force: 26.0
 /controller/fin_poly: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
-/controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+#/controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+/controller/TCM: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 /controller/p_yaw_td: 0.6
 /controller/p_yaw_ti: 0.0
-/controller/d_p_limit: 0.0
+# /controller/d_p_limit: 0.0
 /controller/min_fin_angle: -40.0
 /controller/t_roll_i_limit: 1.0
 /controller/p_sway_kp: 0.0
@@ -193,7 +194,8 @@
 /controller/p_roll_kp: 0.0
 /controller/t_surge_fff: 0.0
 /controller/p_roll_ti: 0.0
-/controller/f_roll_i_limit: 0.0
+# /controller/f_roll_i_limit: 0.0
+/controller/f_yaw_i_limit: 0.0
 /controller/p_heave_ti: 0.0
 /controller/t_surge_i_limit: 0.65
 /controller/p_heave_td: 0.5
@@ -206,14 +208,18 @@
 /controller/t_roll_fff: 0.0
 /controller/p_roll_fff: 0.0
 /controller/max_wrench_Roll: 3.64
-/controller/f_roll_ti: 0.0
+# /controller/f_roll_ti: 0.0
+/controller/f_yaw_ti: 0.0
 /controller/t_sway_ti: 7.0
 /controller/poly_yaw_A: 0.0
 /controller/poly_yaw_C: 53.2837
 /controller/poly_yaw_B: 0.0
-/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
-/controller/f_roll_td: 0.0
-/controller/f_roll_fff: 0.0
+#/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
+/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.65, 0.65, 0.0]
+# /controller/f_roll_td: 0.0
+# /controller/f_roll_fff: 0.0
+/controller/f_yaw_td: 0.0
+/controller/f_yaw_fff: 0.0
 /controller/t_surge_kp: 0.5
 /controller/fin_distance_surge: 0.65
 /controller/t_pitch_fff: 0.0
@@ -235,10 +241,11 @@
 /controller/f_pitch_i_limit: 0.0
 /controller/max_velocity_roll: 0.0
 /controller/p_surge_fff: 0.0
-/controller/d_p_kp: 0.0
+# /controller/d_p_kp: 0.0
 /controller/poly_heave_percentatge: 0.7
 /controller/p_heave_kp: 0.9
-/controller/f_roll_kp: 0.0
+# /controller/f_roll_kp: 0.0
+/controller/f_yaw_kp: 0.0
 /controller/max_velocity_z: 0.3
 /controller/max_velocity_y: 0.3
 /controller/max_velocity_x: 0.5

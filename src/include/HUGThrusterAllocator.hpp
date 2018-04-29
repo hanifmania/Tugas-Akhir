@@ -34,7 +34,6 @@ public:
         // Load params
         _max_force_thruster_forward = 77.0;
         _max_force_thruster_backward = 43.0;
-        _thruster_distance_yaw = 0.16783;
 
         // Thrusters model coeficients
         _c1_f = 28.89;
@@ -44,7 +43,7 @@ public:
         _c4 = 2 * 0.1 * 1.54;
 
         Eigen::MatrixXd tcm( 6, _n_thrusters );
-        tcm << 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783;
+        tcm << 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         //std::cout << "tcm: \n" << tcm << "\n";
 
         // Compute pseudoinverse
@@ -60,14 +59,13 @@ public:
     void
     setParams( const double max_force_thruster_forward,
                const double max_force_thruster_backward,
-               const double thruster_distance_yaw,
                const std::vector< double > tcm_values )
     {
         std::cout << "ThrusterAllocatorHUG set params\n";
 
         _max_force_thruster_forward = max_force_thruster_forward;
         _max_force_thruster_backward = max_force_thruster_backward;
-        _thruster_distance_yaw = thruster_distance_yaw;
+        
 
         // Init TCM inverse
         std::cout << "tcm_values.size(): " << tcm_values.size() << "\n";
@@ -120,7 +118,7 @@ public:
         feedback_info.thrusters_rpm = _th_rpms;
 
         // Merge Surge and Yaw
-        mergeSurgeYaw( wrench_req[0], wrench_req[5], feedback_info );
+        //mergeSurgeYaw( wrench_req[0], wrench_req[5], feedback_info );
         // std::cout << "wrench:\n" << wrench_req << "\n";
 
         // Multiply wrench by thruster allocation matrix
@@ -141,7 +139,6 @@ private:
     unsigned int _n_thrusters;
     double _max_force_thruster_forward;
     double _max_force_thruster_backward;
-    double _thruster_distance_yaw;
     Eigen::MatrixXd _tcm_inv;
     std::vector< double > _th_voltages;                                                                                                         // ****
     std::vector< double > _th_currents;                                                                                                         // ****
@@ -269,222 +266,6 @@ private:
             // std::cout << "ret saturate " << i << ": " << ret[i] << "\n";
         }
         return ret;
-    }
-
-    void
-    mergeSurgeYaw( double& surge,
-                   double& yaw,
-                   const struct _AllocatorFeedback& feedback ) {
-        /*  If the composition of Surge (v[0]) and Yaw (v[5]) overrides
-            the maximum force per thruster,  Yaw is respected and Surge is
-            reduced. */
-
-        if ( simulation == false ) {                                                                                                    // ***
-
-            std::vector< double > th_max_force( 3 );
-            std::vector< double > th_min_force( 3 );
-
-            for( unsigned int i = 1; i < feedback.thrusters_voltage.size(); i++ ) {
-                // Maximum RPMs to get a setpoint of +1 considering the voltage and the maximum current (15 A)
-                double rpms = ( feedback.thrusters_voltage[i] - _c4 * 15.0 ) / _c3;
-
-                // Compute the maximum force that can be done according to the velocity feedback
-                th_max_force[i] = ( pow( ( rpms / 60 ), 2 ) - _c2 * ( rpms / 60 ) * feedback.surge_velocity ) / _c1_f;
-                th_min_force[i] = ( pow( ( rpms / 60 ), 2 ) + _c2 * ( rpms / 60 ) * feedback.surge_velocity ) / _c1_b;
-                //std::cout << i << " Max th " << " : " << th_max_force[i] << "\n";
-                //std::cout << i << " Min th " << " : " << th_min_force[i] << "\n\n";
-
-                // Saturate the computed max and min forces
-                saturate( th_max_force[i], _max_force_thruster_forward, 0 );
-                saturate( th_min_force[i], _max_force_thruster_backward, 0 );
-                //std::cout << i << " Max th " << " : " << th_max_force[i] << "\n";
-                //std::cout << i << " Min th " << " : " << th_min_force[i] << "\n\n";
-            }
-
-            // Compute the maximum symmetric force for each thruster taking in account the surge force
-            // The maximum force at yaw is not equal for different forces of surge
-
-            double average = 0; // surge force that lets do the maximum torque at yaw
-            double yaw_limit = 0;
-
-            if ( yaw > 0 ) {
-
-                yaw_limit = 2 * _thruster_distance_yaw * std::min( th_min_force[1], th_max_force[2] );
-                //std::cout << "AAAA " << yaw_limit << "\n";
-
-                average = ( -th_min_force[1] + th_max_force[2] ) / 2;
-
-                 if ( average > 0 ) {
-                    if ( ( surge / 2 ) >= average ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[2] - average );
-                        //std::cout << "A \n";
-                    }
-                    else if ( ( ( surge / 2 ) > 0 ) and ( ( surge / 2 ) < average ) ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( ( surge / 2 ) + th_min_force[1] );
-                        //std::cout << "B \n";
-                    }
-                    else {
-                        yaw_limit = 2 * _thruster_distance_yaw * th_min_force[1];
-                        //std::cout << "C \n";
-                    }
-                }
-                else if ( average < 0 ) {
-                    if ( ( surge / 2 ) <= average ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[2] - average );
-                        //std::cout << "D \n";
-                    }
-                    else if ( ( ( surge / 2 ) < 0 ) and ( ( surge / 2 ) > average ) ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[2] - ( surge / 2 ) );
-                        //std::cout << "E \n";
-                    }
-                    else {
-                        yaw_limit = 2 * _thruster_distance_yaw * th_max_force[2];
-                        //std::cout << "F \n";
-                    }
-                }
-            }
-            else if ( yaw < 0 ) {
-
-                yaw_limit = - 2 * _thruster_distance_yaw * std::min( th_max_force[1], th_min_force[2] );
-                //std::cout << "BBBB " << yaw_limit << "\n";
-
-                average = ( th_max_force[1] - th_min_force[2] ) / 2;
-
-                if ( average > 0 ) {
-                    if ( ( surge / 2 ) >= average ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[1] - average );
-                        //std::cout << "A \n";
-                    }
-                    else if ( ( ( surge / 2 ) > 0 ) and ( ( surge / 2 ) < average ) ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( ( surge / 2 ) + th_min_force[2] );
-                        //std::cout << "B \n";
-                    }
-                    else {
-                        yaw_limit = 2 * _thruster_distance_yaw * th_min_force[2];
-                        //std::cout << "C \n";
-                    }
-                }
-                else if ( average < 0 ) {
-                    if ( ( surge / 2 ) <= average ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[1] - average );
-                        //std::cout << "D \n";
-                    }
-                    else if ( ( ( surge / 2 ) < 0 ) and ( ( surge / 2 ) > average ) ) {
-                        yaw_limit = 2 * _thruster_distance_yaw * ( th_max_force[1] - ( surge / 2 ) );
-                        //std::cout << "E \n";
-                    }
-                    else {
-                        yaw_limit = 2 * _thruster_distance_yaw * th_max_force[1];
-                        //std::cout << "F \n";
-                    }
-                }
-            }
-
-            // Saturate the maximum symmetric force at heave with surge force zero
-            saturate( yaw, yaw_limit, -yaw_limit );
-
-            // Maximum yaw forces stored in thrusters variables
-            double r_thruster = - ( yaw / _thruster_distance_yaw / 2.0 );
-            double l_thruster = ( yaw / _thruster_distance_yaw / 2.0 );
-
-            // Compute the maximum available force at surge and add it to each thruster
-            if ( surge > 0 ) {
-                double max_increase = std::min( th_max_force[1] - r_thruster,
-                                                th_max_force[2] - l_thruster );
-                //std::cout << "Max Inc " << max_increase << "\n";
-
-                if ( ( surge / 2 ) > max_increase ) {
-                    r_thruster += max_increase;
-                    l_thruster += max_increase;
-                    //std::cout << "W \n";
-                }
-                else {
-                    r_thruster += surge / 2;
-                    l_thruster += surge / 2;
-                    //std::cout << "X \n";
-                }
-            }
-            else if ( surge < 0 ) {
-                double max_decrease = std::max( -th_min_force[1] - r_thruster,
-                                                -th_min_force[2] - l_thruster );
-                //std::cout << "Max Dec " << max_decrease << "\n";
-
-                if ( ( surge / 2 ) < max_decrease ) {
-                    r_thruster += max_decrease;
-                    l_thruster += max_decrease;
-                    //std::cout << "Y \n";
-                }
-                else {
-                    r_thruster += surge / 2;
-                    l_thruster += surge / 2;
-                    //std::cout << "Z \n";
-                }
-            }
-
-            //std::cout << "Left th: " << l_thruster << "\n";
-            //std::cout << "Right th: " << r_thruster << "\n";
-
-            // Compose again surge force and yaw torque
-            yaw = ( l_thruster - r_thruster ) * _thruster_distance_yaw;
-            surge = l_thruster + r_thruster;
-        }
-        else {                                                                                                                                  //***
-            // Saturate surge
-            saturate( surge,
-                      2.0 * _max_force_thruster_forward,
-                      -2.0 * _max_force_thruster_backward );
-
-            // Saturate yaw
-            double min_force = std::min( _max_force_thruster_forward,
-                                           _max_force_thruster_backward );
-
-            saturate( yaw,
-                      2.0 * min_force * _thruster_distance_yaw,
-                      -2.0 * min_force * _thruster_distance_yaw );
-
-            // Compose left and rigth thruster forces
-            double l_thruster = ( surge / 2.0 ) + ( yaw / _thruster_distance_yaw / 2.0 );
-            double r_thruster = ( surge / 2.0 ) - ( yaw / _thruster_distance_yaw / 2.0 );
-
-            // Check limits
-            double diff = fabs( l_thruster - r_thruster );
-
-            if (diff > _max_force_thruster_forward + _max_force_thruster_backward) {
-                if( l_thruster > r_thruster ) {
-                    l_thruster = _max_force_thruster_forward;
-                    r_thruster = -_max_force_thruster_backward;
-                }
-                else {
-                    r_thruster = _max_force_thruster_forward;
-                    l_thruster = -_max_force_thruster_backward;
-                }
-            }
-            else {
-                if( l_thruster > r_thruster ) {
-                    if( l_thruster > _max_force_thruster_forward ) {
-                        l_thruster = _max_force_thruster_forward;
-                        r_thruster = _max_force_thruster_forward - diff;
-                    }
-                    if( r_thruster < -_max_force_thruster_backward ) {
-                        r_thruster = -_max_force_thruster_backward;
-                        l_thruster = -_max_force_thruster_backward + diff;
-                    }
-                }
-                if( r_thruster > l_thruster ) {
-                    if( r_thruster > _max_force_thruster_forward ) {
-                        r_thruster = _max_force_thruster_forward;
-                        l_thruster = _max_force_thruster_forward - diff;
-                    }
-                    if( l_thruster < -_max_force_thruster_backward ) {
-                        l_thruster = -_max_force_thruster_backward;
-                        r_thruster = -_max_force_thruster_backward + diff;
-                    }
-                }
-            }
-            // Compose again surge force and yaw torque
-            yaw = ( l_thruster - r_thruster ) * _thruster_distance_yaw;
-            surge = l_thruster + r_thruster;
-        }
     }
 
 

@@ -1,5 +1,5 @@
 # Enbale thrusters
-controller/enable_thrusters: True
+controller/enable_thrusters: False
 
 # POSE PID CONTROLLER
 # The following parameters adjust the proportional–integral–derivative
@@ -135,26 +135,35 @@ controller/poly_yaw_percentatge: 1.0
 # updated
 /controller/max_force_thruster_forward: 77.0
 /controller/max_force_thruster_backward: 43.0
-/controller/thruster_distance_yaw: 0.16783
+
 
 # Thruster control matrix. This matrix specifies how each thruster contributes
 # to the force or torque generated in each axis of the robot
-/controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+# /controller/TCM: [0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.16783, 0.16783]
+/controller/TCM: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 # FINS CONFIGURATIONS
+
 # DEPTH TO PITCH PID CONTROLLER
-controller/d_p_kp: 0.15
-controller/d_p_ti: 12.0
-controller/d_p_td: 0.0
-controller/d_p_limit: 0.2
-controller/d_p_fff: 0.0
+# controller/d_p_kp: 0.15
+# controller/d_p_ti: 12.0
+# controller/d_p_td: 0.0
+# controller/d_p_limit: 0.2
+# controller/d_p_fff: 0.0
 
 # ROLL PID CONTROLLER
-controller/f_roll_kp: 0.4
-controller/f_roll_ti: 15.0
-controller/f_roll_td: 0.0
-controller/f_roll_i_limit: 0.25
-controller/f_roll_fff: 0.0
+# controller/f_roll_kp: 0.4
+# controller/f_roll_ti: 15.0
+# controller/f_roll_td: 0.0
+# controller/f_roll_i_limit: 0.25
+# controller/f_roll_fff: 0.0
+
+# YAW PID CONTROLLER
+controller/f_yaw_kp: 0.4
+controller/f_yaw_ti: 15.0
+controller/f_yaw_td: 0.0
+controller/yaw_i_limit: 0.25
+controller/yaw_fff: 0.0
 
 # PITCH PID CONTROLLER
 controller/f_pitch_kp: 0.8
@@ -172,5 +181,6 @@ controller/f_pitch_fff: 0.0
 
 /controller/force_to_fins_ratio: 13.0
 
-/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
+# /controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.14, 0.14, 0.65, 0.65, 0.0, 0.0]
+/controller/FCM: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.65, 0.65, 0.0]
 /controller/fin_poly: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
