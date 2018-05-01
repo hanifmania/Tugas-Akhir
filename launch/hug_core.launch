@@ -1,6 +1,6 @@
 <launch>
     <!--  ################# Input arguments  #################  -->
-    <arg name="enableImu" default="true"/>
+    <arg name="enableImu" default="false"/>
     <arg name="enableSafety" default="true"/>
     <arg name="autosave_params_path" default="$(find cola2_hug)/config/saved_configurations"/>
 

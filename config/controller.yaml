@@ -1,5 +1,5 @@
 # Enbale thrusters
-controller/enable_thrusters: True
+controller/enable_thrusters: False
 
 # POSE PID CONTROLLER
 # The following parameters adjust the proportional–integral–derivative

@@ -133,7 +133,6 @@ set(HEADER_FILES
     "${CMAKE_CURRENT_LIST_DIR}/src/include/HUGFinAllocator.hpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/include/HUGController.hpp")
 
-
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -msse4.2")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -msse4.2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++0x")
@@ -176,13 +175,6 @@ add_executable(navigator_hug src/navigator_hug.cpp)
 target_link_libraries(navigator_hug ${catkin_LIBRARIES})
 add_dependencies(navigator_hug cola2_msgs_gencpp)
 
-add_executable(control_actuator ${HEADER_FILES} src/control_actuator.cpp)
-target_link_libraries(control_actuator ${catkin_LIBRARIES})
-add_dependencies(control_actuator ${PROJECT_NAME}_gencfg cola2_msgs_gencpp)
-
-add_executable(talker ${HEADER_FILES} src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
-add_dependencies(talker ${PROJECT_NAME}_gencfg cola2_msgs_gencpp)
 
 #############
 ## Install ##
